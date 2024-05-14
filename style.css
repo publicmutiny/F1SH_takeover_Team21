@@ -120,6 +120,18 @@ strong {
     text-decoration: none;
 }
 
+.gantt-images {
+    padding: 10px;
+    width: 80%;
+}
+
+.captions {
+    color: #333;
+    font-style: italic;
+    font-size: 14px;
+    padding-bottom: 30px;
+}
+
 
 
 
