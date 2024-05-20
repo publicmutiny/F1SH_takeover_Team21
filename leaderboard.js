@@ -1,4 +1,4 @@
-fetch('https://34.39.12.110:3000/leaderboard')
+fetch('http://34.39.12.110:3000/leaderboard')
   .then(response => response.json())
   .then(data => {
     renderLeaderboard(data);
