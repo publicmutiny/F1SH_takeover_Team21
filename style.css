@@ -143,5 +143,18 @@ strong {
     text-decoration: none;
 }
 
+.arch-diagrams{ 
+    width: 90%;
+}
+
+.leaderboard-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .leaderboard-list li {
+    margin-bottom: 5px;
+  }
+
 
 
