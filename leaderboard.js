@@ -1,4 +1,4 @@
-fetch('http://34.39.12.110:3000/leaderboard')
+fetch('https://34.39.12.110:3000/leaderboard')
   .then(response => response.json())
   .then(data => {
     renderLeaderboard(data);
@@ -9,7 +9,7 @@ fetch('http://34.39.12.110:3000/leaderboard')
 
   function renderLeaderboard(data) {
     const leaderboardContainer = document.getElementById('leaderboard-container');
-    leaderboardContainer.innerHTML = ''; // Clear previous data
+    leaderboardContainer.innerHTML = '';
   
     const leaderboardList = document.createElement('ul');
     leaderboardList.classList.add('leaderboard-list');
