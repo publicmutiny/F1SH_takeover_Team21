@@ -147,14 +147,34 @@ strong {
     width: 90%;
 }
 
-.leaderboard-container {
-    list-style-type: none;
-    padding: 0;
+.leaderboard-table {
+  max-width: 90%;
+
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+  padding: 8px 60px;
+  color: #333;
+}
+
+.leaderboard-table th {
+  background-color: #e0508e43;
+  font-weight: bold;
+}
+
+.leaderboard-table tr {
+    background-color: #e0508e13;
   }
-  
-  .leaderboard-container li {
-    margin-bottom: 5px;
-  }
+
+.leaderboard-table tr:hover {
+  background-color: #ffffff2a;
+}
+
+
 
 
 

@@ -12,15 +12,39 @@ function renderLeaderboard(data) {
   const leaderboardContainer = document.getElementById('leaderboard-container');
   leaderboardContainer.innerHTML = '';
 
-  const leaderboardList = document.createElement('ul');
-  leaderboardList.classList.add('leaderboard-list');
+  data.sort((a, b) => b.score - a.score);
 
-  data.forEach(entry => {
-    const listItem = document.createElement('li');
-    listItem.textContent = `${entry.username}: ${entry.score}`;
-    leaderboardList.appendChild(listItem);
+  const leaderboardTable = document.createElement('table');
+  leaderboardTable.classList.add('leaderboard-table');
+
+  const headerRow = document.createElement('tr');
+  const headerPosition = document.createElement('th');
+  headerPosition.textContent = 'Position';
+  const headerName = document.createElement('th');
+  headerName.textContent = 'Name';
+  const headerScore = document.createElement('th');
+  headerScore.textContent = 'Score';
+
+  headerRow.appendChild(headerPosition);
+  headerRow.appendChild(headerName);
+  headerRow.appendChild(headerScore);
+  leaderboardTable.appendChild(headerRow);
+
+  data.forEach((entry, index) => {
+    const row = document.createElement('tr');
+
+    const positionCell = document.createElement('td');
+    positionCell.textContent = index + 1;
+    const nameCell = document.createElement('td');
+    nameCell.textContent = entry.player;
+    const scoreCell = document.createElement('td');
+    scoreCell.textContent = entry.score.toFixed(1) + "%";
+
+    row.appendChild(positionCell);
+    row.appendChild(nameCell);
+    row.appendChild(scoreCell);
+    leaderboardTable.appendChild(row);
   });
 
-  leaderboardContainer.appendChild(leaderboardList);
+  leaderboardContainer.appendChild(leaderboardTable);
 }
-
