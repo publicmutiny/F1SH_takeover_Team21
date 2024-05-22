@@ -1,0 +1,89 @@
+Test Identifier: MINIGAME_WASD
+Description: Test to verify if WASD inputs during the basketball minigame affect the player’s position post-minigame. 
+Related Requirement: UR_MINIGAME, UR_MOVEMENT
+Category: Gameplay Mechanics 
+Author History: Callum MacDonald, 19/05/2024
+Steps to be followed:
+Start the minigame within the game.
+During the minigame, use WASD keys to interact with the game. 
+Input Data: Specific key sequence: (W-A-S-D-D-S-W-W)
+Complete the minigame.
+Observe the player’s position in the main game environment.
+Expected Outcome: The player’s position should remain unchanged in the main game environment after the minigame is completed.
+Actual Outcome (pre-fix): The player’s position changes in the main game environment due to WASD inputs being captured during the minigame. Status = FAIL
+Actual Outcome (post-fix): The player’s position doesn’t change due to WASD inputs not being captured during the minigame. Status = PASS
+
+Test Identifier: LEADERBOARD_RECORD
+Short Description: Test to verify if the user’s name is correctly recorded on the leaderboard after playing through the game. 
+Related Requirements: UR_SCORE_LEADERBOARD, UR_SCORE
+Category: User Experience 
+Author History: Callum MacDonald, 21/05/2024
+Steps to be followed:
+Start the game.
+At the beginning, the user is prompted to input their name.
+Enter the desired name (e.g., “Player123”) and proceed.
+Input Data: User-provided name (e.g., “Player123”).
+Play through the game until reaching the end screen and check the leaderboard.
+Check the leaderboard section on the end screen.
+Input Data: User-provided name (e.g., “Player123”).
+Expected Outcome: The user’s name (“Player123”) should be correctly displayed on the leaderboard.
+Actual Outcome: The user’s name (“Player123”) is correctly recorded on the leaderboard. Status = PASS
+
+Test Identifier: DUCK_MINIGAME_SPAWN 
+Description: Test to verify that ducks in the minigame spawn within the visible screen area. 
+Related Requirement: UR_MINIGAME
+Category: Gameplay Mechanics 
+Author History: Callum MacDonald 18/05/2024
+Steps to be followed:
+Start the duck minigame within the game.
+Observe the screen area where ducks are expected to spawn.
+Click on any ducks that appear.
+Input Data: Mouse click at varied points on the screen
+Repeat steps 2 and 3 multiple times until the minigame is over
+Expected Outcome: Ducks should spawn within the visible screen area (i.e., not fully or partially off-screen).
+Actual Outcome (pre-fix): Ducks occasionally spawn partially or completely off-screen. Status = FAIL
+Actual Outcome (post-fix): Ducks consistently spawn within the visible screen area. Status = PASS
+
+Test Identifier: PAUSE_MENU_FUNCTIONALITY
+Description: Test to ensure the pause menu renders correctly, and the game clock is paused when the Escape key is pressed. 
+Related Requirement: UR_INTERFACE 
+Category: User Interface
+Author History: Callum MacDonald, 20,05,2024
+Steps to be followed:
+Start the game and begin gameplay.
+Make note of the in game clock time then, press the Escape key to bring up the pause menu.
+Input Data: Pressing the Escape key during gameplay.
+Observe the pause menu for correct rendering of buttons and text.
+Verify that the buttons displayed are Resume and Main Menu.
+Resume the game and check that the game clock was paused.
+Expected Outcome: The pause menu appears with all elements correctly rendered so that the Resume and Main Menu buttons are displayed and the game clock is paused.
+Actual Outcome: The pause menu and all its elements are displayed correctly. The game clock is successfully paused. Status = PASS
+
+Test Identifier: START_SCREEN_TEST 
+Description: Test to verify that buttons on the start screen lead to the expected information screens and that the start screen initially appears when the game is run 
+Related Requirement: UR_INTRO, UR_INTERFACE, UR_TUTORIAL
+Category: User Interface
+Author History: Callum MacDonald, 17/05/2024
+Steps to be followed:
+Run the game.
+Observe that the start screen has been rendered in.
+Verify that the following buttons are displayed:
+Play
+Controls
+Leaderboard
+Settings
+Exit
+Click on each button to navigate to the corresponding information screen.
+Input Data: Running the game and mouse click on each button.
+Check that the expected screens are displayed:
+Expected Outcome: When the game is run the start screen renders in with 5 different buttons.
+Clicking on each button should lead to the correct information screen:
+Play: Initiates gameplay.
+Controls: Displays information about game controls.
+Leaderboard: Shows the leaderboard with player scores.
+Settings: Opens the settings menu.
+Exit: Exits the game.
+The screens should display relevant content (e.g., controls information, leaderboard, settings).
+Actual Outcome: The start screen is rendered in. Buttons correctly lead to the expected information screens. Relevant content is displayed on each screen. Status = PASS
+
+
