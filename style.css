@@ -34,7 +34,8 @@ header{
     background-color: #f9a9cdd5;
     text-align: center;  
     width: 100%;
-    padding: 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 
@@ -148,31 +149,30 @@ strong {
 }
 
 .leaderboard-table {
-  max-width: 90%;
-
-  border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 18px;
-  text-align: center;
-}
-
-.leaderboard-table th, .leaderboard-table td {
-  padding: 8px 60px;
-  color: #333;
-}
-
-.leaderboard-table th {
-  background-color: #e0508e43;
-  font-weight: bold;
-}
-
-.leaderboard-table tr {
-    background-color: #e0508e13;
+    max-width: 90%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: center;
   }
-
-.leaderboard-table tr:hover {
-  background-color: #ffffff2a;
-}
+  
+  .leaderboard-table th, .leaderboard-table td {
+    padding: 8px 60px;
+    color: #333;
+  }
+  
+  .leaderboard-table th {
+    background-color: #e0508e43;
+    font-weight: bold;
+  }
+  
+  .leaderboard-table tr {
+      background-color: #e0508e13;
+    }
+  
+  .leaderboard-table tr:hover {
+    background-color: #ffffff2a;
+  }
 
 
 
