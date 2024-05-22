@@ -1,4 +1,4 @@
-fetch('https://score-board-afe96bddb988.herokuapp.com/get_scores')
+fetch('https://cors-anywhere.herokuapp.com/https://score-board-afe96bddb988.herokuapp.com/get_scores')
   .then(response => response.json())
   .then(data => {
     console.log(data);

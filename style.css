@@ -147,12 +147,12 @@ strong {
     width: 90%;
 }
 
-.leaderboard-list {
+.leaderboard-container {
     list-style-type: none;
     padding: 0;
   }
   
-  .leaderboard-list li {
+  .leaderboard-container li {
     margin-bottom: 5px;
   }
 
