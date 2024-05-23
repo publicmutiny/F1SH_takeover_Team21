@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">tests</a> &gt; <a href="index.source.html" class="el_package">com.mygdx.game.Utils</a> &gt; <span class="el_source">EventManager.java</span></div><h1>EventManager.java</h1><pre class="source lang-java linenums">package com.mygdx.game.Utils;
+
+import com.mygdx.game.HesHustle;
+import com.mygdx.game.Objects.ActivityImage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Manager of the game.
+ * Stores Time, Energy, Events etc.
+ * Helps interaction between player and buildings
+ */
+<span class="fc" id="L14">public class EventManager {</span>
+    Event FeedDucks, Sleep, StudyCS, EatPiazza, PlayBBall;
+
+<span class="fc" id="L17">    Event curEvent = null;</span>
+
+    private Integer energy;
+<span class="fc" id="L20">    private boolean frozen = false;</span>
+    private final List&lt;Event&gt; playedEvents;
+    private final ResourceManager resourceManager;
+    private final HesHustle game;
+    private final GameClock gameClock;
+
+    //Game Score Data//
+    private final int[] dailyStudy;
+    private final int[] dailyRecreational;
+    private final List&lt;List&lt;Integer&gt;&gt; mealTimes;
+    private final List&lt;String&gt; placesStudied;
+    private int totalStudyHours;
+
+    private int eat, sleep, rec;
+
+<span class="fc" id="L35">    public EventManager(HesHustle game, GameClock gameClock) {</span>
+<span class="fc" id="L36">        this.game = game;</span>
+<span class="fc" id="L37">        this.gameClock = gameClock;</span>
+<span class="fc" id="L38">        resourceManager = new ResourceManager();</span>
+<span class="fc" id="L39">        playedEvents = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L40">        energy = 100;</span>
+<span class="fc" id="L41">        dailyStudy = new int[7];</span>
+<span class="fc" id="L42">        dailyRecreational = new int[7];</span>
+<span class="fc" id="L43">        mealTimes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L44">        placesStudied = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L45">        totalStudyHours = 0;</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (int i = 0; i &lt; 7; i++) {</span>
+<span class="fc" id="L47">            mealTimes.add(new ArrayList&lt;&gt;());</span>
+        }
+<span class="fc" id="L49">        generateEvents();</span>
+<span class="fc" id="L50">    }</span>
+
+    private void generateEvents() {
+<span class="fc" id="L53">        FeedDucks = new Event(1, -5, 0, -5, Event.Type.RECREATIONAL, 0, &quot;&quot;, ScreenType.DUCK_GAME_SCREEN);</span>
+<span class="fc" id="L54">        StudyCS = new Event(3, -20, 1, -10, Event.Type.STUDY, 15, &quot;CSBuildingStudy&quot;, ScreenType.CHECKIN_CODE_SCREEN);</span>
+<span class="fc" id="L55">        PlayBBall = new Event(2, -30, 0, 10, Event.Type.RECREATIONAL, 25, &quot;&quot;, ScreenType.BASKETBALL_SCREEN);</span>
+<span class="fc" id="L56">        Sleep = new Event(8, 90, 0, 0, Event.Type.SLEEP, 0, &quot;&quot;, resourceManager.addDisposable(new ActivityImage(&quot;Activitys/langwith.png&quot;)));</span>
+<span class="fc" id="L57">        EatPiazza = new Event(1, 10, 0, 0, Event.Type.EAT, 0, &quot;&quot;, ScreenType.COOKIE_SCREEN);</span>
+<span class="fc" id="L58">    }</span>
+
+    private void updateMealAchievement(){
+<span class="fc" id="L61">        int mealsEaten = mealTimes.get(gameClock.getDays()-1).size();</span>
+
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (game.getAchievementHandler() == null) return;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (mealsEaten &gt;= 3){</span>
+<span class="nc" id="L65">            game.getAchievementHandler().getAchievement(&quot;Feast to Fullest&quot;, Achievement.Type.BRONZE).unlock();</span>
+        }
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (mealsEaten &gt;= 4){</span>
+<span class="nc" id="L68">            game.getAchievementHandler().getAchievement(&quot;Feast to Fullest&quot;, Achievement.Type.SILVER).unlock();</span>
+        }
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (mealsEaten &gt;= 5){</span>
+<span class="nc" id="L71">            game.getAchievementHandler().getAchievement(&quot;Feast to Fullest&quot;, Achievement.Type.GOLD).unlock();</span>
+        }
+<span class="nc" id="L73">    }</span>
+
+    public Event getCurEvent() {
+<span class="fc" id="L76">        return curEvent;</span>
+    }
+
+    public void interact(String name) {
+
+<span class="fc bfc" id="L81" title="All 6 branches covered.">        switch (name) {</span>
+            default:
+<span class="fc" id="L83">                curEvent = null;</span>
+<span class="fc" id="L84">                break;</span>
+            case &quot;Piazza&quot;:
+<span class="fc" id="L86">                curEvent = EatPiazza;</span>
+<span class="fc" id="L87">                break;</span>
+            case &quot;Computer\nScience\nDepartment&quot;:
+<span class="fc" id="L89">                curEvent = StudyCS;</span>
+<span class="fc" id="L90">                break;</span>
+            case &quot;Langwith&quot;:
+<span class="fc" id="L92">                curEvent = Sleep;</span>
+<span class="fc" id="L93">                break;</span>
+            case &quot;Ducks&quot;:
+<span class="fc" id="L95">                curEvent = FeedDucks;</span>
+<span class="fc" id="L96">                break;</span>
+            case &quot;BasketBall&quot;:
+<span class="fc" id="L98">                curEvent = PlayBBall;</span>
+                break;
+        }
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        assert curEvent != null;</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (-curEvent.getEnergyCost() &lt; energy) {</span>
+<span class="fc" id="L103">            playedEvents.add(curEvent);</span>
+
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (curEvent.getStudyTime() &gt; 0){</span>
+<span class="fc" id="L106">                this.dailyStudy[gameClock.getDays()-1]++;</span>
+<span class="fc" id="L107">                addStudyPlace(curEvent.getDescription());</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">            } else if (curEvent.getEventType() == Event.Type.EAT){</span>
+<span class="fc" id="L109">                eat++;</span>
+<span class="fc" id="L110">                addMeal(gameClock.getHours());</span>
+<span class="fc" id="L111">                updateMealAchievement();</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            } else if (curEvent.getEventType() == Event.Type.RECREATIONAL){</span>
+<span class="fc" id="L113">                rec++;</span>
+<span class="fc" id="L114">                dailyRecreational[gameClock.getDays()-1]++;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            } else if (curEvent.getEventType() == Event.Type.SLEEP){</span>
+<span class="fc" id="L116">                sleep++;</span>
+            }
+
+<span class="fc" id="L119">            updateTime(curEvent);</span>
+<span class="fc" id="L120">            updateEnergy(curEvent);</span>
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">            if (curEvent.getActivityImage() != null)</span>
+            {
+<span class="fc" id="L124">                frozen = true;</span>
+<span class="fc" id="L125">                curEvent.getActivityImage().setActive();</span>
+<span class="fc" id="L126">                gameClock.addEvent(s -&gt; {</span>
+<span class="nc bnc" id="L127" title="All 4 branches missed.">                    if (curEvent != null &amp;&amp; curEvent.getActivityImage() != null) {</span>
+<span class="nc" id="L128">                        curEvent.getActivityImage().setInactive();</span>
+<span class="nc" id="L129">                        curEvent = null;</span>
+                    }
+<span class="nc" id="L131">                    frozen = false;</span>
+<span class="nc" id="L132">                }, 4f);</span>
+            }
+            else {
+<span class="fc" id="L135">                game.getScreenManager().setScreen(curEvent.getScreenType(), this);</span>
+            }
+        }
+
+<span class="fc" id="L139">    }</span>
+
+    public void addStudyHours(int h){
+<span class="fc" id="L142">        totalStudyHours += h;</span>
+<span class="fc" id="L143">    }</span>
+
+    public void updateEnergy(Event e) {
+<span class="fc" id="L146">        energy += e.getEnergyCost();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (energy &lt; 0) {</span>
+<span class="fc" id="L148">            energy = 0;</span>
+            //passout
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        } else if (energy &gt; 100) {</span>
+<span class="fc" id="L151">            energy = 100;</span>
+        }
+
+<span class="fc" id="L154">    }</span>
+
+    public void updateTime(Event e) {
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (e.getEventType() == Event.Type.SLEEP) {</span>
+<span class="fc" id="L158">            gameClock.setMinutes(0);</span>
+<span class="fc" id="L159">            gameClock.setHours(8);</span>
+<span class="fc" id="L160">            gameClock.setDays(gameClock.getDays() + 1);</span>
+        } else {
+<span class="fc" id="L162">            gameClock.setHours(gameClock.getHours() + (int) Math.floor(e.getTimeCost()));</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            if (gameClock.getHours() &gt;= 24) {</span>
+<span class="fc" id="L164">                int day = gameClock.getHours()/24;</span>
+<span class="fc" id="L165">                gameClock.setHours(gameClock.getHours() - (24 * day));</span>
+<span class="fc" id="L166">                gameClock.setDays(gameClock.getDays() + day);</span>
+            }
+        }
+
+<span class="fc" id="L170">    }</span>
+
+    public Integer getEnergy() {
+<span class="fc" id="L173">        return energy;</span>
+    }
+
+    public List&lt;Event&gt; getPlayedEvents() {
+<span class="fc" id="L177">        return playedEvents;</span>
+    }
+
+    public float calcScore(){
+        int s1, s3, s4, s5;
+
+<span class="fc" id="L183">        int num0s = 0;</span>
+<span class="fc" id="L184">        int num1s = 0;</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        for (int study : this.dailyStudy){</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (study == 0){</span>
+<span class="fc" id="L187">                num0s++;</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            } else if (study == 1){</span>
+<span class="fc" id="L189">                num1s++;</span>
+            }
+        }
+<span class="pc bpc" id="L192" title="1 of 6 branches missed.">        if (num0s == 0 || (num0s == 1 &amp;&amp; num1s &lt;= 5)){</span>
+<span class="fc" id="L193">            s1 = 100;</span>
+<span class="pc bpc" id="L194" title="1 of 4 branches missed.">        } else if (num0s == 2 &amp;&amp; num1s &lt;= 4){</span>
+<span class="fc" id="L195">            s1 = 60;</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        } else if (num0s &lt; 7){</span>
+<span class="fc" id="L197">            s1 = 40;</span>
+        } else{
+<span class="fc" id="L199">            s1 = 0;</span>
+        }
+
+//        int totalStudyHours = gameScreen.getTotalStudyHours();
+<span class="pc bpc" id="L203" title="1 of 4 branches missed.">        s3 = (this.totalStudyHours &gt;= 28 &amp;&amp; this.totalStudyHours &lt;= 35) ? 100 : (this.totalStudyHours * 100 / 28);</span>
+
+<span class="fc" id="L205">        int notEaten = 0;</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        for (List&lt;Integer&gt; times : this.mealTimes){</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">            if (times.size() &lt; 3){</span>
+<span class="fc" id="L208">                notEaten++;</span>
+            }
+<span class="fc" id="L210">        }</span>
+<span class="fc" id="L211">        notEaten = (notEaten + 1)/2;</span>
+<span class="pc bpc" id="L212" title="2 of 5 branches missed.">        switch (notEaten){</span>
+            case 0:
+<span class="fc" id="L214">                s4 = 100;</span>
+<span class="fc" id="L215">                break;</span>
+            case 1:
+<span class="nc" id="L217">                s4 = 80;</span>
+<span class="nc" id="L218">                break;</span>
+            case 2:
+<span class="nc" id="L220">                s4 = 60;</span>
+<span class="nc" id="L221">                break;</span>
+            case 3:
+<span class="fc" id="L223">                s4 = 40;</span>
+<span class="fc" id="L224">                break;</span>
+            default:
+<span class="fc" id="L226">                s4 = 0;</span>
+                break;
+        }
+
+<span class="fc" id="L230">        int numBad = 0;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        for (int recreate : this.dailyRecreational){</span>
+<span class="fc bfc" id="L232" title="All 4 branches covered.">            if (recreate == 0 || recreate &gt;= 3){</span>
+<span class="fc" id="L233">                numBad++;</span>
+            }
+        }
+
+<span class="pc bpc" id="L237" title="3 of 6 branches missed.">        switch (numBad){</span>
+            case 0:
+<span class="fc" id="L239">                s5 = 100;</span>
+<span class="fc" id="L240">                break;</span>
+            case 1:
+<span class="nc" id="L242">                s5 = 80;</span>
+<span class="nc" id="L243">                break;</span>
+            case 2:
+            case 3:
+<span class="nc" id="L246">                s5 = 60;</span>
+<span class="nc" id="L247">                break;</span>
+            case 4:
+            case 5:
+<span class="fc" id="L250">                s5 = 40;</span>
+<span class="fc" id="L251">                break;</span>
+            case 6:
+<span class="nc" id="L253">                s5 = 20;</span>
+<span class="nc" id="L254">                break;</span>
+            default:
+<span class="fc" id="L256">                s5 = 0;</span>
+                break;
+        }
+<span class="fc" id="L259">        return (s1 + s3 + s4 + s5) / 4f;</span>
+
+    }
+
+    public int getTotalStudyHours(){
+<span class="fc" id="L264">        return totalStudyHours;</span>
+    }
+
+    public int getEat(){
+<span class="fc" id="L268">        return eat;</span>
+    }
+
+    public int getSleep(){
+<span class="fc" id="L272">        return sleep;</span>
+    }
+
+    public int getRec(){
+<span class="fc" id="L276">        return rec;</span>
+    }
+
+    public boolean notFrozen() {
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        return !frozen;</span>
+    }
+
+    public ArrayList&lt;Event&gt; listEvents(){
+<span class="fc" id="L284">        ArrayList&lt;Event&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L285">        list.add(FeedDucks);</span>
+<span class="fc" id="L286">        list.add(Sleep);</span>
+<span class="fc" id="L287">        list.add(StudyCS);</span>
+<span class="fc" id="L288">        list.add(EatPiazza);</span>
+<span class="fc" id="L289">        list.add(PlayBBall);</span>
+<span class="fc" id="L290">        return list;</span>
+    }
+
+    public void addStudyPlace(String studyPlace){
+<span class="fc bfc" id="L294" title="All 2 branches covered.">        if (!placesStudied.contains(studyPlace)){</span>
+<span class="fc" id="L295">            placesStudied.add(studyPlace);</span>
+        }
+<span class="fc" id="L297">    }</span>
+
+    public void addMeal(int time){
+<span class="fc" id="L300">        mealTimes.get(gameClock.getDays()-1).add(time);</span>
+<span class="fc" id="L301">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

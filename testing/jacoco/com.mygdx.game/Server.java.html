@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Server.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">tests</a> &gt; <a href="index.source.html" class="el_package">com.mygdx.game</a> &gt; <span class="el_source">Server.java</span></div><h1>Server.java</h1><pre class="source lang-java linenums">package com.mygdx.game;
+
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Json;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+public class Server {
+    private static final OkHttpClient client = new OkHttpClient();
+
+    public static boolean submitScore(String player, float score) {
+        if (Gdx.app.getType() == Application.ApplicationType.HeadlessDesktop){
+            return false;
+        }
+        MediaType JSON = MediaType.get(&quot;application/json; charset=utf-8&quot;);
+        String json = &quot;{\&quot;player\&quot;: \&quot;&quot; + player + &quot;\&quot;, \&quot;score\&quot;: &quot; + score + &quot;}&quot;;
+        RequestBody body = RequestBody.create(json, JSON);
+        Request request = new Request.Builder()
+                .url(&quot;https://score-board-afe96bddb988.herokuapp.com/submit_score&quot;)
+                .post(body)
+                .build();
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Result result = new Result();
+
+<span class="nc" id="L34">        client.newCall(request).enqueue(new Callback() {</span>
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+<span class="nc" id="L37">                System.out.println(&quot;Failed to submit score&quot;);</span>
+<span class="nc" id="L38">                result.fail();</span>
+<span class="nc" id="L39">                latch.countDown();</span>
+<span class="nc" id="L40">            }</span>
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">                if (response.isSuccessful()) {</span>
+<span class="nc" id="L45">                    result.successful();</span>
+                } else {
+<span class="nc" id="L47">                    System.out.println(&quot;Unexpected code &quot; + response);</span>
+<span class="nc" id="L48">                    result.fail();</span>
+                }
+<span class="nc" id="L50">                response.close();</span>
+<span class="nc" id="L51">                latch.countDown();</span>
+<span class="nc" id="L52">            }</span>
+        });
+
+        try {
+            latch.await(); // Wait for the callback to count down
+        } catch (InterruptedException e) {
+            //Thread.currentThread().interrupt();
+            System.out.println(&quot;Thread was interrupted&quot;);
+        }
+
+        return result.getResult();
+    }
+    public static void fetchScores(List&lt;Data&gt; result) {
+        if (Gdx.app.getType() == Application.ApplicationType.HeadlessDesktop){
+            return;
+        }
+        Request request = new Request.Builder()
+                .url(&quot;https://score-board-afe96bddb988.herokuapp.com/get_scores&quot;)
+                .build();
+
+<span class="nc" id="L72">        client.newCall(request).enqueue(new Callback() {</span>
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+<span class="nc" id="L75">                System.out.println(&quot;HTTP Request&quot; + &quot;Failed to fetch scores&quot;);</span>
+<span class="nc" id="L76">            }</span>
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (response.isSuccessful()) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                    assert response.body() != null;</span>
+<span class="nc" id="L82">                    String responseBody = response.body().string();</span>
+<span class="nc" id="L83">                    Json json = new Json();</span>
+<span class="nc" id="L84">                    List&lt;Data&gt; scores = Arrays.asList(json.fromJson(Data[].class, responseBody));</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                    result.removeIf(data -&gt; data.getStatus() == 1);</span>
+<span class="nc" id="L86">                    result.addAll(scores);</span>
+<span class="nc" id="L87">                    Collections.sort(result);</span>
+<span class="nc" id="L88">                    Collections.reverse(result);</span>
+
+<span class="nc" id="L90">                } else {</span>
+<span class="nc" id="L91">                    System.out.println(&quot;Unexpected code&quot; + response);</span>
+                }
+<span class="nc" id="L93">            }</span>
+        });
+    }
+
+    public static class Data implements Comparable&lt;Data&gt;{
+        private String player;
+        private float score;
+        private final int status;
+
+        @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L103">        public Data(){</span>
+<span class="nc" id="L104">            status = 1;</span>
+<span class="nc" id="L105">        }</span>
+
+<span class="fc" id="L107">        public Data(String player, float score, int status){</span>
+<span class="fc" id="L108">            this.player = player;</span>
+<span class="fc" id="L109">            this.score = score;</span>
+<span class="fc" id="L110">            this.status = status;</span>
+<span class="fc" id="L111">        }</span>
+
+        public String getPlayer(){
+<span class="fc" id="L114">            return player;</span>
+        }
+
+        public float getScore(){
+<span class="fc" id="L118">            return score;</span>
+        }
+
+        public int getStatus(){
+<span class="fc" id="L122">            return status;</span>
+        }
+
+        @Override
+        public int compareTo(Data o) {
+<span class="fc" id="L127">            return Float.compare(score, o.score);</span>
+        }
+    }
+
+    private static class Result{
+        private boolean result;
+        public void successful(){
+<span class="nc" id="L134">            result = true;</span>
+<span class="nc" id="L135">        }</span>
+        public void fail(){
+<span class="nc" id="L137">            result = false;</span>
+<span class="nc" id="L138">        }</span>
+        public boolean getResult(){
+<span class="nc" id="L140">            return result;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlayerController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">tests</a> &gt; <a href="index.source.html" class="el_package">com.mygdx.game.Objects</a> &gt; <span class="el_source">PlayerController.java</span></div><h1>PlayerController.java</h1><pre class="source lang-java linenums">package com.mygdx.game.Objects;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.mygdx.game.Utils.EventManager;
+import com.mygdx.game.Utils.CollisionDetector;
+import com.mygdx.game.Utils.ResourceManager;
+
+import java.util.Objects;
+
+/**Controller Class which the user interacts with the game through, has input processor which must be set active on each GameScreen
+ *
+ */
+public class PlayerController {
+    /**Width of character sprite
+     */
+<span class="fc" id="L22">    private final float width = 32;</span>
+    /**Height of character sprite
+     */
+<span class="fc" id="L25">    private final float height = 64;</span>
+
+    private Vector2 pos;
+
+    private final ResourceManager resourceManager;
+
+    /**Enum of states the player character can be in
+     */
+<span class="fc" id="L33">    public enum state {</span>
+<span class="fc" id="L34">        IDLE_LEFT,</span>
+<span class="fc" id="L35">        IDLE_UP,</span>
+<span class="fc" id="L36">        IDLE_RIGHT,</span>
+<span class="fc" id="L37">        IDLE_DOWN,</span>
+<span class="fc" id="L38">        WALK_LEFT,</span>
+<span class="fc" id="L39">        WALK_UP,</span>
+<span class="fc" id="L40">        WALK_RIGHT,</span>
+<span class="fc" id="L41">        WALK_DOWN,</span>
+    }
+
+    /**
+     * Animation for each state
+     */
+    public Animation IDLE_LEFT,
+            IDLE_UP,
+            IDLE_RIGHT,
+            IDLE_DOWN,
+            WALK_LEFT,
+            WALK_UP,
+            WALK_RIGHT,
+            WALK_DOWN;
+    /**Current state of player
+     */
+    private final state Pstate;
+    /**Stores current texture region to be rendered
+     *
+     */
+    private TextureRegion txr;
+
+    /**Event Manager used to interact with events*/
+    private final EventManager EM;
+    /**Ref to nearest building (Activity) for interaction*/
+    private Building nearBD;
+
+    private float distanceTravelled;
+    /**Detects player collision
+     *
+     */
+    private final CollisionDetector collisionDetector;
+
+    /**
+     * Constructor of PlayerController
+     * @param xPos Initial x position
+     * @param yPos Initial y position
+     * @param EM EventManager
+     * @param collisionLayer Collision Layer of the Tiled Map
+     */
+<span class="fc" id="L81">    public PlayerController(float xPos, float yPos, EventManager EM, TiledMapTileLayer collisionLayer) {</span>
+<span class="fc" id="L82">        resourceManager = new ResourceManager();</span>
+<span class="fc" id="L83">        pos = new Vector2(xPos,yPos);</span>
+<span class="fc" id="L84">        Pstate = state.IDLE_DOWN;</span>
+<span class="fc" id="L85">        loadAnims();</span>
+
+<span class="fc" id="L87">        this.EM = EM;</span>
+<span class="fc" id="L88">        nearBD = null;</span>
+
+
+        // Initialize the detector
+<span class="fc" id="L92">        collisionDetector = new CollisionDetector(this, collisionLayer);</span>
+
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * Function to generate all the Animations from the sprite sheets
+     */
+    private void loadAnims() {
+<span class="fc" id="L100">        IDLE_LEFT = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_idle_anim_16x16.png&quot;))),12,17,24,12);</span>
+<span class="fc" id="L101">        IDLE_UP = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_idle_anim_16x16.png&quot;))),6,11,24,12);</span>
+<span class="fc" id="L102">        IDLE_RIGHT = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_idle_anim_16x16.png&quot;))),0,5,24,12);</span>
+<span class="fc" id="L103">        IDLE_DOWN = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_idle_anim_16x16.png&quot;))),18,23,24,12);</span>
+<span class="fc" id="L104">        WALK_LEFT = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_run_16x16.png&quot;))),12,17,24,12);</span>
+<span class="fc" id="L105">        WALK_UP = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_run_16x16.png&quot;))),6,11,24,12);</span>
+<span class="fc" id="L106">        WALK_RIGHT = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_run_16x16.png&quot;))),0,5,24,12);</span>
+<span class="fc" id="L107">        WALK_DOWN = new Animation(resourceManager.addDisposable(new Texture(Gdx.files.internal(&quot;Amelia_run_16x16.png&quot;))),18,23,24,12);</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Update function extended from GameObject
+     * @param deltaTime deltaTime
+     */
+    public void update (float deltaTime) {
+        //get texture region to draw
+<span class="fc" id="L116">        txr = getAnim(Pstate).getFrame(deltaTime);</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){</span>
+<span class="fc" id="L118">            interact();</span>
+        }
+        //update position using normalised direction vector using vector addition (delta time in scalar)
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (EM.notFrozen()){</span>
+<span class="fc" id="L122">            Vector2 newPos = pos.cpy().mulAdd(colCorrect(getDir()).nor(),deltaTime*300);</span>
+<span class="fc" id="L123">            float distance = pos.cpy().sub(newPos).len();</span>
+<span class="fc" id="L124">            distanceTravelled += distance;</span>
+<span class="fc" id="L125">            pos = newPos;</span>
+
+        }
+<span class="fc" id="L128">    }</span>
+<span class="fc" id="L129">    public Vector2 getPos() { return pos; }</span>
+
+<span class="fc" id="L131">    public float getWidth() { return width; }</span>
+
+<span class="fc" id="L133">    public float getHeight() { return height; }</span>
+
+    public Vector2 getDir() {
+        //find overall direction of inputs
+<span class="fc" id="L137">        Vector2 dir = new Vector2(0,0);</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.W)){</span>
+<span class="fc" id="L139">            dir.y++;</span>
+        }
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.S)){</span>
+<span class="fc" id="L142">            dir.y--;</span>
+        }
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.A)){</span>
+<span class="fc" id="L145">            dir.x--;</span>
+        }
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.D)){</span>
+<span class="fc" id="L148">            dir.x++;</span>
+        }
+<span class="fc" id="L150">        return dir;</span>
+    }
+
+    /**
+     * Alters the direction vector to account for collisions
+     * @param dir .
+     * @return .
+     */
+    public Vector2 colCorrect(Vector2 dir)
+    {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (dir == null) return null;</span>
+<span class="fc" id="L161">        Vector2 colDir = new Vector2(dir.x,dir.y);</span>
+<span class="fc bfc" id="L162" title="All 4 branches covered.">        if ((dir.x==1) &amp;&amp; collisionDetector.collidesRight()){colDir.x=0;}</span>
+<span class="pc bpc" id="L163" title="1 of 4 branches missed.">        if ((dir.x==-1) &amp;&amp; collisionDetector.collidesLeft()){colDir.x=0;}</span>
+<span class="fc bfc" id="L164" title="All 4 branches covered.">        if ((dir.y==1) &amp;&amp; collisionDetector.collidesUp()){colDir.y=0;}</span>
+<span class="pc bpc" id="L165" title="1 of 4 branches missed.">        if ((dir.y==-1) &amp;&amp; collisionDetector.collidesDown()){colDir.y=0;}</span>
+<span class="fc" id="L166">        return colDir;</span>
+    }
+
+    /**
+     * Method to return animation to play
+     * @param Pstate .
+     * @return Anim
+     */
+    public Animation getAnim(state Pstate)
+    {
+<span class="fc" id="L176">        Vector2 dir = getDir();</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        if (Objects.equals(dir, new Vector2(0, 0)))</span>
+        {
+<span class="pc bpc" id="L179" title="1 of 5 branches missed.">            switch (Pstate)</span>
+            {
+                case WALK_UP:
+                case IDLE_UP:
+<span class="fc" id="L183">                    return IDLE_UP;</span>
+                case WALK_DOWN:
+                case IDLE_DOWN:
+<span class="fc" id="L186">                    return IDLE_DOWN;</span>
+                case WALK_RIGHT:
+                case IDLE_RIGHT:
+<span class="fc" id="L189">                    return IDLE_RIGHT;</span>
+                case WALK_LEFT:
+                case IDLE_LEFT:
+<span class="pc" id="L192">                    return IDLE_LEFT;</span>
+            }
+        }
+        else
+        {
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (dir.x == 1){</span>
+<span class="fc" id="L198">                return WALK_RIGHT;</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">            } else if (dir.x == -1){</span>
+<span class="fc" id="L200">                return WALK_LEFT;</span>
+            }
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (dir.y == 1){</span>
+<span class="fc" id="L203">                return WALK_UP;</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            } else if (dir.y == -1){</span>
+<span class="fc" id="L205">                return WALK_DOWN;</span>
+            }
+
+        }
+
+<span class="fc" id="L210">        return null;</span>
+    }
+    public void render(SpriteBatch batch){
+<span class="fc" id="L213">        batch.draw(txr,pos.x, pos.y, width, height);</span>
+<span class="fc" id="L214">    }</span>
+
+    /**
+     * sets the nearest builiding value
+     * @param BD .
+     */
+    public void setBD(Building BD){
+<span class="fc" id="L221">        nearBD = BD;</span>
+<span class="fc" id="L222">    }</span>
+    public void interact(){
+<span class="pc bpc" id="L224" title="3 of 4 branches missed.">        if (nearBD!=null &amp;&amp; EM.notFrozen())</span>
+        {
+<span class="nc" id="L226">            EM.interact(nearBD.getName());</span>
+        }
+<span class="fc" id="L228">    }</span>
+
+    public float getDistanceTravelled(){
+<span class="fc" id="L231">        return distanceTravelled;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
